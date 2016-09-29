@@ -33,7 +33,7 @@ void match (token expected) {
 void program ();
 void stmt_list ();
 void stmt ();
-void r_terminal ();
+void R_Expr ();
 void expr ();
 void expr_tail ();
 void term_tail ();
@@ -87,70 +87,56 @@ void stmt () {
             match (t_id);
             break;
         case t_write:
-            cout << "predict stmt --> write expr\n";
+            cout << "predict stmt --> write R_Expr\n";
             match (t_write);
-            expr ();
+            R_Expr ();
             break;
         case t_if:
-            cout << "predict stmt --> if R stmt_list fi\n";
+            cout << "predict stmt --> if R_Expr stmt_list fi\n";
             match (t_if);
-            expr ();
+            R_Expr ();
             stmt_list ();
+            match (t_fi)
             break;
         case t_do:
             cout << "prdict stmt --> do stmt_list od\n";
             match (t_do);
             stmt_list ();
+            match (t_od)
             break;
         case t_check:
-            cout << "predict stmt --> check expr\n";
+            cout << "predict stmt --> check R_Expr\n";
             match (t_check);
-            expr ();
+            R_Expr ();
             break;
         default: error ();
     }
 }
 /*Start-----------------------------------------------------------------*/
-void r_terminal () {
-    switch (input_token) {
-        case t_write:
-            cout << "predict r_terminal --> expr expr_tail\n";
-            expr ();
-            expr_tail ();
-            break;
-        default: error();
-    }
+void R_Expr () { 
+    cout << "predict R_Expr --> expr expr_tail\n";
+    expr ();
+    expr_tail ();
 }
 
-void expr () {
-    switch (input_token) {
-        case t_write:
-            cout << "predict expr --> term term_tail\n";
-            term ();
-            term_tail ();
-            break;
-        default: error();
-
-    }
+void expr () { 
+    cout << "predict expr --> term term_tail\n";
+    term ();
+    term_tail ();
 }
 
 void term () {
-    switch (input_token) {
-        case t_write:
-            cout << "predict term --> factor factor_tail\n";
-            factor ();
-            factor_tail ();
-            break;
-        default: error();
-    }
+    cout << "predict term --> factor factor_tail\n";
+    factor ();
+    factor_tail ();
 }
 
 void factor () {
     switch (input_token) {
         case t_lparen:
-            cout << "predict factor --> left_paren r_terminal right_paren\n";
+            cout << "predict factor --> left_paren R_Expr right_paren\n";
             match (t_lparen);
-            r_terminal ();
+            R_Expr ();
             match (t_rparen);
             break;
         case t_id:
@@ -158,7 +144,7 @@ void factor () {
             match (t_id);
             break;
         case t_literal:
-            cout << "predict factor --> id\n";
+            cout << "predict factor --> literal\n";
             match (t_literal);
             break;
         default: error();
@@ -167,99 +153,33 @@ void factor () {
 
 void expr_tail () {
     switch (input_token) {
-        case t_write:
-            cout << "predict expr_tail --> r_op"
+        case t_ro:
+            cout << "predict expr_tail --> r_op expr"
+            
+        case t_eof:
+            cout << "predict factor_tail --> epsilon\n";
         default: error();
-    }
-}
-/*End-----------------------------------------------------------------*/
-void expr () {
-    switch (input_token) {
-        case t_id:
-        case t_literal:
-        case t_lparen:
-            cout << "predict expr --> term term_tail\n";
-            term ();
-            term_tail ();
-            break;
-        default: error ();
     }
 }
 
 void term_tail () {
     switch (input_token) {
-        case t_add:
-        case t_sub:
-            cout << "predict term_tail --> add_op term term_tail\n";
-            add_op ();
-            term ();
-            term_tail ();
-            break;
-        case t_rparen:
-        case t_id:
-        case t_read:
-        case t_write:
         case t_eof:
-            cout << "predict term_tail --> epsilon\n";
-            break;          /*  epsilon production */
-        default: error ();
-    }
-}
-
-void term () {
-    switch (input_token) {
-        case t_id:
-        case t_literal:
-        case t_lparen:
-            cout << "predict term --> factor factor_tail\n";
-            factor ();
-            factor_tail ();
-            break;
-        default: error ();
+            cout << "predict factor_tail --> epsilon\n";
+        default: error();
     }
 }
 
 void factor_tail () {
     switch (input_token) {
-        case t_mul:
-        case t_div:
-            cout << "predict factor_tail --> mul_op factor factor_tail\n";
-            mul_op ();
-            factor ();
-            factor_tail ();
-            break;
-        case t_add:
-        case t_sub:
-        case t_rparen:
-        case t_id:
-        case t_read:
-        case t_write:
         case t_eof:
             cout << "predict factor_tail --> epsilon\n";
-            break;          /*  epsilon production */
-        default: error ();
+        default: error();
     }
+
 }
 
-void factor () {
-    switch (input_token) {
-        case t_id :
-            cout << "predict factor --> id\n";
-            match (t_id);
-            break;
-        case t_literal:
-            cout << "predict factor --> literal\n";
-            match (t_literal);
-            break;
-        case t_lparen:
-            cout << "predict factor --> lparen expr rparen\n";
-            match (t_lparen);
-            expr ();
-            match (t_rparen);
-            break;
-        default: error ();
-    }
-}
+/*End-----------------------------------------------------------------*/
 
 void r_op () {
     switch (input_token) {
