@@ -40,6 +40,7 @@ void term_tail ();
 void term ();
 void factor_tail ();
 void factor ();
+void r_op();
 void add_op ();
 void mul_op ();
 
@@ -51,7 +52,7 @@ void program () {
         case t_eof:
             cout << "predict program --> stmt_list eof\n";
             stmt_list ();
-            match (t_eof);
+            match (t_eof); // takes care of $$
             break;
         default: error ();
     }
@@ -66,10 +67,6 @@ void stmt_list () {
             stmt ();
             stmt_list ();
             break;
-        case t_eof:
-            cout << "predict stmt_list --> epsilon\n";
-            break;          /*  epsilon production */
-        default: error ();
     }
 }
 
@@ -96,13 +93,13 @@ void stmt () {
             match (t_if);
             R_Expr ();
             stmt_list ();
-            match (t_fi)
+            match (t_fi);
             break;
         case t_do:
             cout << "prdict stmt --> do stmt_list od\n";
             match (t_do);
             stmt_list ();
-            match (t_od)
+            match (t_od);
             break;
         case t_check:
             cout << "predict stmt --> check R_Expr\n";
@@ -112,7 +109,7 @@ void stmt () {
         default: error ();
     }
 }
-/*Start-----------------------------------------------------------------*/
+
 void R_Expr () { 
     cout << "predict R_Expr --> expr expr_tail\n";
     expr ();
@@ -154,32 +151,38 @@ void factor () {
 void expr_tail () {
     switch (input_token) {
         case t_ro:
-            cout << "predict expr_tail --> r_op expr"
-            
-        case t_eof:
-            cout << "predict factor_tail --> epsilon\n";
-        default: error();
+            cout << "predict expr_tail --> r_op expr\n";
+            r_op ();
+            expr ();
+            break;
+
     }
 }
 
 void term_tail () {
     switch (input_token) {
-        case t_eof:
-            cout << "predict factor_tail --> epsilon\n";
-        default: error();
+        case t_ao:
+            cout << "predict term_tail --> add_op term term_tail\n";
+            add_op ();
+            term ();
+            term_tail ();
+            break;
+
     }
 }
 
 void factor_tail () {
     switch (input_token) {
-        case t_eof:
-            cout << "predict factor_tail --> epsilon\n";
-        default: error();
+        case t_mo:
+            cout << "predict factor_tail --> mul_op factor factor_tail\n";
+            mul_op ();
+            factor ();
+            factor_tail ();
+            break;
+
     }
 
 }
-
-/*End-----------------------------------------------------------------*/
 
 void r_op () {
     switch (input_token) {

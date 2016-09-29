@@ -33,7 +33,9 @@ token scan() {
         else if (!strcmp(token_image, "fi")) return t_fi;
         else if (!strcmp(token_image, "od")) return t_od;        
         else if (!strcmp(token_image, "check")) return t_check;
-        else if (!strcmp(token_image, "ro")) return t_ro
+        else if (!strcmp(token_image, "ro")) return t_ro;
+        else if (!strcmp(token_image, "ao")) return t_ao;
+        else if (!strcmp(token_image, "mo")) return t_mo;
         else return t_id;
     }
     else if (isdigit(c)) {
@@ -50,15 +52,53 @@ token scan() {
                 exit(1);
             } else {
                 c = getchar();
-                return t_gets;
+                return t_gets; // :=
             }
             break;
-        case '==': c = getchar(); return t_eq_eq;
-        case '<>': c = getchar(); return t_not_eq;
-        case '<': c = getchar(); return t_less;
-        case '>': c = getchar(); return t_great;
-        case '<=': c = getchar(); return t_less_eq;
-        case '>=': c = getchar(); return t_great_eq;
+        case '$':
+            if (c = getchar() != '$') {
+                cerr << "error\n";
+                exit(1);
+            } else {
+                c = getchar();
+                return t_eof; // $$
+            }
+            break;
+        case '=':
+            if (c = getchar() != '=') {
+                cerr << "error\n";
+                exit(1);
+            } else {
+                c = getchar();
+                return t_eq_eq; // ==
+            }
+            break;
+        case '<':
+            c = getchar();
+            if (c == '>') {
+                c = getchar();
+                return t_not_eq; // <>
+            }
+            else if (c == '=' )  {
+                c = getchar();
+                return t_less_eq; // <=
+            }
+            else {
+                c = getchar();
+                return t_less; // <
+            }
+            break;
+        case '>':
+            c = getchar();
+            if (c == '=') {
+                c = getchar();
+                return t_great_eq; // >=
+            } else {
+                c = getchar();
+                return t_great; // >
+            }
+            break;
+        
         case '+': c = getchar(); return t_add;
         case '-': c = getchar(); return t_sub;
         case '*': c = getchar(); return t_mul;
