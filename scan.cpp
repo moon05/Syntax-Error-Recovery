@@ -16,14 +16,14 @@ token scan() {
 
     /* skip white space */
     while (isspace(c)) {
-        c = getchar();
+        c = cin.get();
     }
     if (c == EOF)
         return t_eof;
     if (isalpha(c)) {
         do {
             token_image[i++] = c;
-            c = getchar();
+            c = cin.get();
         } while (isalpha(c) || isdigit(c) || c == '_');
         token_image[i] = '\0';
         if (!strcmp(token_image, "read")) return t_read;
@@ -33,78 +33,75 @@ token scan() {
         else if (!strcmp(token_image, "fi")) return t_fi;
         else if (!strcmp(token_image, "od")) return t_od;        
         else if (!strcmp(token_image, "check")) return t_check;
-        else if (!strcmp(token_image, "ro")) return t_ro;
-        else if (!strcmp(token_image, "ao")) return t_ao;
-        else if (!strcmp(token_image, "mo")) return t_mo;
         else return t_id;
     }
     else if (isdigit(c)) {
         do {
             token_image[i++] = c;
-            c = getchar();
+            c = cin.get();
         } while (isdigit(c));
         token_image[i] = '\0';
         return t_literal;
     } else switch (c) {
         case ':':
-            if (c = getchar() != '=') {
+            if ( ( c = cin.get() ) != '=') {
                 cerr << "error\n";
                 exit(1);
             } else {
-                c = getchar();
+                c = cin.get();
                 return t_gets; // :=
             }
             break;
         case '$':
-            if (c = getchar() != '$') {
+            if ( ( c = cin.get() ) != '$') {
                 cerr << "error\n";
                 exit(1);
             } else {
-                c = getchar();
+                c = cin.get();
                 return t_eof; // $$
             }
             break;
         case '=':
-            if (c = getchar() != '=') {
+            if ( ( c = cin.get() ) != '=') {
                 cerr << "error\n";
                 exit(1);
             } else {
-                c = getchar();
+                c = cin.get();
                 return t_eq_eq; // ==
             }
             break;
         case '<':
-            c = getchar();
+            c = cin.get();
             if (c == '>') {
-                c = getchar();
+                c = cin.get();
                 return t_not_eq; // <>
             }
             else if (c == '=' )  {
-                c = getchar();
+                c = cin.get();
                 return t_less_eq; // <=
             }
             else {
-                c = getchar();
+                c = cin.get();
                 return t_less; // <
             }
             break;
         case '>':
-            c = getchar();
+            c = cin.get();
             if (c == '=') {
-                c = getchar();
+                c = cin.get();
                 return t_great_eq; // >=
             } else {
-                c = getchar();
+                c = cin.get();
                 return t_great; // >
             }
             break;
         
-        case '+': c = getchar(); return t_add;
-        case '-': c = getchar(); return t_sub;
-        case '*': c = getchar(); return t_mul;
-        case '/': c = getchar(); return t_div;
-        case '(': c = getchar(); return t_lparen;
-        case ')': c = getchar(); return t_rparen;
+        case '+': c = cin.get(); return t_add;
+        case '-': c = cin.get(); return t_sub;
+        case '*': c = cin.get(); return t_mul;
+        case '/': c = cin.get(); return t_div;
+        case '(': c = cin.get(); return t_lparen;
+        case ')': c = cin.get(); return t_rparen;
         default:
             cout << "error\n";
             exit(1);
