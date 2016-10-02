@@ -3,6 +3,7 @@
 */
 
 #include <iostream>
+#include <vector>
 #include "scan.h"
 
 using namespace std;

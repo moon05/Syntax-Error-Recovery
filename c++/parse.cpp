@@ -5,6 +5,8 @@
 */
 
 #include <iostream>
+#include <vector>
+
 #include <string>
 #include "scan.h"
 
@@ -16,22 +18,25 @@ const string names[] = {"read", "write", "if", "do", "fi", "od" , "check",
                         "add", "sub", "mul", "div", "lparen", "rparen", "eof"};
 
 //Storing all the First Sets
-token P[] = {t_id, t_read, t_write, t_if, t_do, t_check, t_eof};
-token SL[] = {t_id, t_read, t_write, t_if, t_do, t_check};
-token S[] = {t_id, t_read, t_write, t_if, t_do, t_check};
-token R[] = {t_lparen, t_id, t_literal};
-token E[] = {t_lparen, t_id, t_literal};
-token T[] = {t_lparen, t_id, t_literal};
-token F[] = {t_lparen, t_id, t_literal};
-token ET[] = {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq};
-token TT[] = {t_add, t_sub};
-token FT[] = {t_mul, t_div};
-token ro[] = {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq};
-token ao[] = {t_add, t_sub};
-token mo[] = {t_mul, t_div};
+vector<int> b {1,2};
+vector<int> a = {1,2};
+
+vector<token> P = {t_id, t_read, t_write, t_if, t_do, t_check, t_eof};
+vector<token> SL {t_id, t_read, t_write, t_if, t_do, t_check};
+vector<token> S {t_id, t_read, t_write, t_if, t_do, t_check};
+vector<token> R {t_lparen, t_id, t_literal};
+vector<token> E {t_lparen, t_id, t_literal};
+vector<token> T {t_lparen, t_id, t_literal};
+vector<token> F {t_lparen, t_id, t_literal};
+vector<token> ET {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq};
+vector<token> TT {t_add, t_sub};
+vector<token> FT {t_mul, t_div};
+vector<token> ro {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq};
+vector<token> ao {t_add, t_sub};
+vector<token> mo {t_mul, t_div};
 
 //Storing all the epsilons
-bool epsP = false;
+bool epsP = true;
 bool epsSL = true;
 bool epsS = false;
 bool epsR = false;
@@ -47,24 +52,24 @@ bool eps_mo = false;
 
 
 //Storing all the Follow Sets
-token P_follow[] = {};
-token SL_follow[] = {t_eof, t_fi, t_od};
-token S_follow[] = {t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token R_follow[] = {t_rparen, t_fi, t_id, t_read, t_write, t_if, t_do, t_check, t_od, t_eof};
-token E_follow[] = {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen, t_fi,
-                    t_od, t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token T_follow[] = {t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen, t_fi,
-                    t_od, t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token F_follow[] = {t_mul, t_div, t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq,
-                    t_rparen, t_fi, t_od, t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token ET_follow[] = {t_rparen, t_fi, t_id, t_read, t_write, t_if, t_do, t_check, t_od, t_eof};
-token TT_follow[] = {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen, t_fi,
-                    t_od, t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token FT_follow[] = {t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen, t_fi,
-                    t_od, t_eof, t_id, t_read, t_write, t_if, t_do, t_check};
-token ro_follow[] = {t_lparen, t_id, t_literal};
-token ao_follow[] = {t_lparen, t_id, t_literal};
-token mo_follow[] = {t_lparen, t_id, t_literal};
+vector<token> P_follow {};
+vector<token> SL_follow {t_fi, t_od, t_eof};
+vector<token> S_follow {t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> R_follow {t_rparen, t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> E_follow {t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen,
+                    t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> T_follow {t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen,
+                    t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> F_follow {t_mul, t_div, t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen,
+                    t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> ET_follow {t_rparen, t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> TT_follow {t_literal,t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen,
+                    t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> FT_follow {t_add, t_sub, t_eq_eq, t_not_eq, t_less, t_great, t_less_eq, t_great_eq, t_rparen,
+                    t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
+vector<token> ro_follow {t_lparen, t_id, t_literal};
+vector<token> ao_follow {t_lparen, t_id, t_literal};
+vector<token> mo_follow {t_lparen, t_id, t_literal};
 
 static token input_token;
 
@@ -74,12 +79,12 @@ void error () {
 }
 
 void report_error (token a) {
-    cout << "Invalid symbol"<< a << "\n";
+    cout << "Invalid symbol: "<< names[a] << "\n";
 }
 
 void match (token expected) {
     if (input_token == expected) {        
-        cout <<"matched " << names[input_token];
+        cout <<"Matched " << names[input_token];
         if (input_token == t_id || input_token == t_literal)
             cout << ": " << token_image;
         cout <<"\n";
@@ -88,31 +93,31 @@ void match (token expected) {
     else error ();
 }
 
+//Finding the Size/Length of any array (Generics)
+template <typename T, unsigned S>
+inline unsigned arraySize(const T (&v)[S]) {return S;}
+//
 
-
-bool iter ( token given_token, token l[] ) {
-    for (int i=0; i < sizeof(l)/sizeof(given_token); i++) {
+bool isin ( token given_token, vector<token> l ) {
+    int a = l.size();
+    for (int i=0; i < a; i++) {
         if (given_token == l[i]) {
-            cout << "printing array " << l[i] << names[l[i]] << "\n";
+            cout << "printing array " << l[i] << ", "<< names[l[i]] << "\n";
             return true;
         }
-        cout << "printing array " << l[i] << names[l[i]];
-
-
     }
     cout << given_token << "\n";
     return false;
 }
 
-void check_error ( token first[], bool eps, token follow[] ) {
-    token epsilon[] = {t_eof};
-    if (!(iter(input_token, first) || eps)) {
+void check_error ( vector<token> first, bool eps, vector<token> follow ) {
+    if (!(isin(input_token, first) || eps)) {
 
         report_error(input_token);
         do {
             input_token = scan();
         }
-        while ( !(iter(input_token, first) || iter(input_token, follow) || iter(input_token, epsilon)) );
+        while ( !(isin(input_token, first) || isin(input_token, follow) || input_token == t_eof) );
     }
 }
 
@@ -132,6 +137,8 @@ void add_op ();
 void mul_op ();
 
 void program () {
+    // int j[] = sets_length(P, P_follow);
+    cout << P.size() << endl;
     check_error (P, epsP, P_follow);
     switch (input_token) {
         case t_id:
@@ -195,7 +202,7 @@ void stmt () {
             match (t_fi);
             break;
         case t_do:
-            cout << "prdict stmt --> do stmt_list od\n";
+            cout << "predict stmt --> do stmt_list od\n";
             match (t_do);
             stmt_list ();
             match (t_od);
@@ -224,13 +231,16 @@ void expr () {
 }
 
 void term () {
+    cout << "going into term check\n";
     check_error (T, epsT, T_follow);
     cout << "predict term --> factor factor_tail\n";
+    cout << "going into factor\n";
     factor ();
     factor_tail ();
 }
 
 void factor () {
+    cout << "going into factor check\n";
     check_error (F, epsF, F_follow);
     switch (input_token) {
         case t_lparen:
@@ -277,7 +287,7 @@ void term_tail () {
         case t_sub:
             cout << "predict term_tail --> add_op term term_tail\n";
             add_op ();
-            cout << "came to term";
+            cout << "going into term\n";
             term ();
             term_tail ();
             break;
@@ -294,7 +304,7 @@ void factor_tail () {
         case t_div:
             cout << "predict factor_tail --> mul_op factor factor_tail\n";
             mul_op ();
-            cout << "came here";
+            cout << "came to factor_tail";
             factor ();
             factor_tail ();
             break;
