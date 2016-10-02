@@ -102,19 +102,24 @@ bool isin ( token given_token, vector<token> l ) {
     int a = l.size();
     for (int i=0; i < a; i++) {
         if (given_token == l[i]) {
-            cout << "printing array " << l[i] << ", "<< names[l[i]] << "\n";
+            cout << "printing vector ( " << l[i] << ", "<< names[l[i]] << " )\n";
             return true;
         }
     }
-    cout << given_token << "\n";
+    for (int j=0; j<a; j++){
+        cout<< names[l[j]] << ", "; 
+    }
+    cout<<"\n";
+    cout << "This token wasn't in the vector: "<<given_token << "\n";
     return false;
 }
 
 void check_error ( vector<token> first, bool eps, vector<token> follow ) {
     if (!(isin(input_token, first) || eps)) {
-
+        cout << eps <<endl;
         report_error(input_token);
         do {
+            cout << "got into do while";
             input_token = scan();
         }
         while ( !(isin(input_token, first) || isin(input_token, follow) || input_token == t_eof) );
@@ -149,6 +154,7 @@ void program () {
         case t_check:
         case t_eof:
             cout << "predict program --> stmt_list eof\n";
+            cout << "Going into stmt_list" <<endl;
             stmt_list ();
             match (t_eof); // takes care of $$
             break;
@@ -157,7 +163,8 @@ void program () {
 }
 
 void stmt_list () {
-    check_error (SL, epsS, SL_follow);
+    cout << "screwed in stmt_list";
+    check_error (SL, epsSL, SL_follow);
     switch (input_token) {
         case t_id:
         case t_read:
@@ -166,7 +173,9 @@ void stmt_list () {
         case t_check:
         case t_write:
             cout << "predict stmt_list --> stmt stmt_list\n";
+            cout << "Going into stmt" <<endl;
             stmt ();
+            cout << "Going into stmt_list" <<endl;
             stmt_list ();
             break;
         default: return;
@@ -176,12 +185,14 @@ void stmt_list () {
 }
 
 void stmt () {
+    cout << "screwed in stmt";
     check_error (S, epsS, S_follow);
     switch (input_token) {
         case t_id:
             cout << "predict stmt --> id gets expr\n";
             match (t_id);
             match (t_gets);
+            cout << "Going into expr" <<endl;
             expr ();
             break;
         case t_read:
@@ -192,24 +203,29 @@ void stmt () {
         case t_write:
             cout << "predict stmt --> write R_Expr\n";
             match (t_write);
+            cout << "Going into r_expr" <<endl;
             R_Expr ();
             break;
         case t_if:
             cout << "predict stmt --> if R_Expr stmt_list fi\n";
             match (t_if);
+            cout << "Going into r_expr" <<endl;
             R_Expr ();
+            cout << "Going into stmt_list" <<endl;
             stmt_list ();
             match (t_fi);
             break;
         case t_do:
             cout << "predict stmt --> do stmt_list od\n";
             match (t_do);
+            cout << "Going into stmt_list" <<endl;
             stmt_list ();
             match (t_od);
             break;
         case t_check:
             cout << "predict stmt --> check R_Expr\n";
             match (t_check);
+            cout << "Going into r_expr" <<endl;
             R_Expr ();
             break;
         default: return;
@@ -219,23 +235,27 @@ void stmt () {
 void R_Expr () {
     check_error (R, epsR, R_follow);
     cout << "predict R_Expr --> expr expr_tail\n";
+    cout << "Going into expr in R_Expr" <<endl;
     expr ();
+    cout << "Going into expr_tail in R_Expr" <<endl;
     expr_tail ();
 }
 
 void expr () {
     check_error (E, epsE, E_follow);
     cout << "predict expr --> term term_tail\n";
+    cout << "Going into term in expr" <<endl;
     term ();
+    cout << "Going into term_tail in expr" <<endl;
     term_tail ();
 }
 
 void term () {
-    cout << "going into term check\n";
     check_error (T, epsT, T_follow);
     cout << "predict term --> factor factor_tail\n";
-    cout << "going into factor\n";
+    cout << "Going into factor in term" <<endl;
     factor ();
+    cout << "Going into factor_tail in term" <<endl;
     factor_tail ();
 }
 
@@ -246,6 +266,7 @@ void factor () {
         case t_lparen:
             cout << "predict factor --> lparen R_Expr rparen\n";
             match (t_lparen);
+            cout << "Going into r_expr in factor" <<endl;
             R_Expr ();
             match (t_rparen);
             break;
@@ -272,6 +293,7 @@ void expr_tail () {
         case t_great_eq:
             cout << "predict expr_tail --> relational_op expr\n";
             r_op ();
+            cout << "Going into expr in expr_tail" <<endl;
             expr ();
             break;
         default: return;
@@ -287,8 +309,9 @@ void term_tail () {
         case t_sub:
             cout << "predict term_tail --> add_op term term_tail\n";
             add_op ();
-            cout << "going into term\n";
+            cout << "Going into term in term_tail" <<endl;
             term ();
+            cout << "Going into term_tail in term_tail" <<endl;
             term_tail ();
             break;
         default: return;
@@ -304,8 +327,9 @@ void factor_tail () {
         case t_div:
             cout << "predict factor_tail --> mul_op factor factor_tail\n";
             mul_op ();
-            cout << "came to factor_tail";
+            cout << "Going into factor in factor_tail" <<endl;
             factor ();
+            cout << "Going into factor_tail in factor_tail" <<endl;
             factor_tail ();
             break;
         default: return;
