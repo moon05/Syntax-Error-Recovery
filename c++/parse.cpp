@@ -6,8 +6,8 @@
 
 #include <iostream>
 #include <vector>
+#include <regex>
 
-#include <string>
 #include "scan.h"
 
 using namespace std;
@@ -16,6 +16,8 @@ const string names[] = {"read", "write", "if", "do", "fi", "od" , "check",
                         "id", "literal", "gets","equalequal", "notequal",
                         "lessthan", "greaterthan", "lessORequal", "greaterORequal",
                         "add", "sub", "mul", "div", "lparen", "rparen", "eof"};
+
+string syntax_tree = "";
 
 //Storing all the First Sets
 vector<int> b {1,2};
@@ -74,8 +76,7 @@ vector<token> mo_follow {t_lparen, t_id, t_literal};
 static token input_token;
 
 void error () {
-    cout << "syntax error\n";
-    exit (1);
+    throw invalid_argument("Syntax Error");
 }
 
 void report_error (token a) {
@@ -88,17 +89,15 @@ void match (token expected) {
         if (input_token == t_id || input_token == t_literal)
             cout << ": " << token_image;
         cout <<"\n";
+        syntax_tree += names[expected] + " ";
         input_token = scan ();
     }
     else error ();
 }
 
-//Finding the Size/Length of any array (Generics)
-template <typename T, unsigned S>
-inline unsigned arraySize(const T (&v)[S]) {return S;}
-//
 
-bool isin ( token given_token, vector<token> l ) {
+
+bool isin (token given_token, vector<token> l) {
     int a = l.size();
     for (int i=0; i < a; i++) {
         if (given_token == l[i]) {
@@ -114,7 +113,7 @@ bool isin ( token given_token, vector<token> l ) {
     return false;
 }
 
-void check_error ( vector<token> first, bool eps, vector<token> follow ) {
+bool check_error (vector<token> first, bool eps, vector<token> follow) {
     if (!(isin(input_token, first) || eps)) {
         cout << eps <<endl;
         report_error(input_token);
@@ -122,10 +121,29 @@ void check_error ( vector<token> first, bool eps, vector<token> follow ) {
             cout << "got into do while";
             input_token = scan();
         }
-        while ( !(isin(input_token, first) || isin(input_token, follow) || input_token == t_eof) );
+        while ( !(isin(input_token, first) || isin(input_token, follow)) );
+        if (isin(input_token, first)){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
+    return false;
 }
 
+
+void recover_from_error (vector<token> follow) {
+    do {
+        input_token = scan();
+    } while (!(isin(input_token,follow)));
+}
+
+void print_error_info(string e, string a){
+    cout << "Expected: "<< e << endl;
+    cout << "Actual: " << a << endl;
+
+}
 
 void program ();
 void stmt_list ();
@@ -142,9 +160,10 @@ void add_op ();
 void mul_op ();
 
 void program () {
-    // int j[] = sets_length(P, P_follow);
-    cout << P.size() << endl;
-    check_error (P, epsP, P_follow);
+    if (check_error (P, epsP, P_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_id:
         case t_read:
@@ -160,11 +179,15 @@ void program () {
             break;
         default: return;
     }
+    syntax_tree += ")";
 }
 
 void stmt_list () {
     cout << "screwed in stmt_list";
-    check_error (SL, epsSL, SL_follow);
+    if (check_error (SL, epsSL, SL_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_id:
         case t_read:
@@ -182,16 +205,25 @@ void stmt_list () {
 
         // epsilon
     }
+    syntax_tree += ")";
 }
 
 void stmt () {
     cout << "screwed in stmt";
-    check_error (S, epsS, S_follow);
+    if (check_error (S, epsS, S_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_id:
             cout << "predict stmt --> id gets expr\n";
-            match (t_id);
-            match (t_gets);
+            try{
+                match (t_id);
+                match (t_gets);
+            }catch(exception& ex) {
+                recover_from_error(S_follow);
+                cout << ex.what() << endl;
+            }
             cout << "Going into expr" <<endl;
             expr ();
             break;
@@ -229,39 +261,56 @@ void stmt () {
             R_Expr ();
             break;
         default: return;
+
     }
+    syntax_tree += ")";
 }
 
 void R_Expr () {
-    check_error (R, epsR, R_follow);
+    if(check_error (R, epsR, R_follow)){
+        return;
+    }
+    syntax_tree += "(";
     cout << "predict R_Expr --> expr expr_tail\n";
     cout << "Going into expr in R_Expr" <<endl;
     expr ();
     cout << "Going into expr_tail in R_Expr" <<endl;
     expr_tail ();
+    syntax_tree += ")";
 }
 
 void expr () {
-    check_error (E, epsE, E_follow);
+    if (check_error (E, epsE, E_follow)){
+        return;
+    }
+    syntax_tree += "(";
     cout << "predict expr --> term term_tail\n";
     cout << "Going into term in expr" <<endl;
     term ();
     cout << "Going into term_tail in expr" <<endl;
     term_tail ();
+    syntax_tree += ")";
 }
 
 void term () {
-    check_error (T, epsT, T_follow);
+    if (check_error (T, epsT, T_follow)){
+        return;
+    }
+    syntax_tree += "(";
     cout << "predict term --> factor factor_tail\n";
     cout << "Going into factor in term" <<endl;
     factor ();
     cout << "Going into factor_tail in term" <<endl;
     factor_tail ();
+    syntax_tree += ")";
 }
 
 void factor () {
     cout << "going into factor check\n";
-    check_error (F, epsF, F_follow);
+    if (check_error (F, epsF, F_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_lparen:
             cout << "predict factor --> lparen R_Expr rparen\n";
@@ -280,10 +329,14 @@ void factor () {
             break;
         default: return;
     }
+    syntax_tree += ")";
 }
 
 void expr_tail () {
-    check_error (ET, epsET, ET_follow);
+    if (check_error (ET, epsET, ET_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_eq_eq:
         case t_not_eq:
@@ -300,10 +353,14 @@ void expr_tail () {
         // epsilon
 
     }
+    syntax_tree += ")";
 }
 
 void term_tail () {
-    check_error (TT, epsTT, TT_follow);
+    if (check_error (TT, epsTT, TT_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_add:
         case t_sub:
@@ -316,12 +373,15 @@ void term_tail () {
             break;
         default: return;
         // epsilon
-
     }
+    syntax_tree += ")";
 }
 
 void factor_tail () {
-    check_error (FT, epsFT, FT_follow);
+    if (check_error (FT, epsFT, FT_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_mul:
         case t_div:
@@ -334,12 +394,15 @@ void factor_tail () {
             break;
         default: return;
         // epsilon
-
     }
+    syntax_tree += ")";
 }
 
 void r_op () {
-    check_error (ro, eps_ro, ro_follow);
+    if (check_error (ro, eps_ro, ro_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_eq_eq:
             cout << "predict r_op --> equalequal\n";
@@ -367,10 +430,14 @@ void r_op () {
             break;
         default: return;
     }
+    syntax_tree += ")";
 }
 
 void add_op () {
-    check_error (ao, eps_ao, ao_follow);
+    if (check_error (ao, eps_ao, ao_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_add:
             cout << "predict add_op --> add\n";
@@ -382,10 +449,14 @@ void add_op () {
             break;
         default: return;
     }
+    syntax_tree += ")";
 }
 
 void mul_op () {
-    check_error (mo, eps_mo, mo_follow);
+    if (check_error (mo, eps_mo, mo_follow)){
+        return;
+    }
+    syntax_tree += "(";
     switch (input_token) {
         case t_mul:
             cout << "predict mul_op --> mul\n";
@@ -397,9 +468,17 @@ void mul_op () {
             break;
         default: return;
     }
+    syntax_tree += ")";
 }
 
 int main () {
     input_token = scan ();
     program ();
+    cout << "Printing Syntax Tree" << endl;
+    
+    regex pattern("()");
+
+    syntax_tree = regex_replace(syntax_tree, pattern, "");
+
+    cout << syntax_tree << endl;
 }

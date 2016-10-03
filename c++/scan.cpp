@@ -104,7 +104,7 @@ token scan() {
         case '(': c = cin.get(); return t_lparen;
         case ')': c = cin.get(); return t_rparen;
         default:
-            cout << "error\n";
+            cout << "Invalid character "<< c <<"\n";
             exit(1);
     }
 }
