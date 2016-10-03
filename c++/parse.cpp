@@ -20,8 +20,6 @@ const string names[] = {"read", "write", "if", "do", "fi", "od" , "check",
 string syntax_tree = "";
 
 //Storing all the First Sets
-vector<int> b {1,2};
-vector<int> a = {1,2};
 
 vector<token> P = {t_id, t_read, t_write, t_if, t_do, t_check, t_eof};
 vector<token> SL {t_id, t_read, t_write, t_if, t_do, t_check};
@@ -38,6 +36,7 @@ vector<token> ao {t_add, t_sub};
 vector<token> mo {t_mul, t_div};
 
 //Storing all the epsilons
+
 bool epsP = false;
 bool epsSL = true;
 bool epsS = false;
@@ -54,6 +53,7 @@ bool eps_mo = false;
 
 
 //Storing all the Follow Sets
+
 vector<token> P_follow {};
 vector<token> SL_follow {t_fi, t_od, t_eof};
 vector<token> S_follow {t_id, t_read, t_write, t_if, t_do, t_check, t_fi, t_od, t_eof};
@@ -109,7 +109,7 @@ bool isin (token given_token, vector<token> l) {
 }
 
 bool check_error (vector<token> first, bool eps, vector<token> follow) {
-    // 'match' eplison
+    // 'match' epsilon
     if (!isin(input_token, first) && eps) {
         return true;
     }
@@ -138,11 +138,6 @@ void recover_from_error (vector<token> follow) {
     } while (!(isin(input_token,follow)));
 }
 
-void print_error_info(string e, string a){
-    cout << "Expected: "<< e << endl;
-    cout << "Actual: " << a << endl;
-
-}
 
 void program ();
 void stmt_list ();
@@ -160,10 +155,8 @@ void mul_op ();
 
 void program () {
     if (check_error (P, epsP, P_follow)){
-        cout << "Started on the top" << endl;
         program();
     }
-    cout << "Started from the bottom and yeah" << endl;
     syntax_tree += "(";
 
     switch (input_token) {
@@ -445,7 +438,6 @@ void factor () {
 }
 
 void expr_tail () {
-    cout << "ET\n";
     if (check_error (ET, epsET, ET_follow)){
         return;
     }
@@ -469,7 +461,6 @@ void expr_tail () {
 }
 
 void term_tail () {
-    cout << "TT\n";
     if (check_error (TT, epsTT, TT_follow)){
         return;
     }
@@ -489,7 +480,6 @@ void term_tail () {
 }
 
 void factor_tail () {
-    cout << "FT\n";
     if (check_error (FT, epsFT, FT_follow)){
         return;
     }

@@ -1,0 +1,9 @@
+read * n
+	n := n + 1
+	read ** k
+		if cj == ck
+			do
+				check * lj
+			od
+
+		*fi

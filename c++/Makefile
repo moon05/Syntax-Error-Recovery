@@ -3,8 +3,20 @@
 
 # Note that rule for goal (parse) must be the first one in this file.
 
-parse: parse.o scan.o
-	gcc -o parse parse.o scan.o
+stars = **********************************
 
-parse.o: scan.h
-scan.o: scan.h
+parse:
+	g++ -std=c++14 parse.cpp scan.cpp -o parse
+
+test: parse
+	$(info ${stars})
+	$(info ${stars})
+
+	cat ./test.txt | ./parse
+	echo "+++++++++++++++++++++";
+	$(info ${stars})
+	$(info ${stars})
+
+	cat ./test2.txt | ./parse
+
+	
