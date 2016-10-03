@@ -180,6 +180,9 @@ void program () {
         default: return;
     }
     syntax_tree += ")";
+    regex pattern("\\(\\)");
+    syntax_tree = regex_replace(syntax_tree, pattern, "");
+    cout << syntax_tree << endl;
 }
 
 void stmt_list () {
@@ -473,13 +476,6 @@ void mul_op () {
 
 int main () {
     input_token = scan ();
-    program ();
-    cout << "Printing Syntax Tree" << endl;
-    cout << syntax_tree << endl;
-    
-    regex pattern("\\(\\)");
+    program ();    
 
-    syntax_tree = regex_replace(syntax_tree, pattern, "");
-    cout << "Cleaned up tree" << endl;
-    cout << syntax_tree << endl;
 }
