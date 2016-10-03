@@ -165,25 +165,28 @@ void program () {
     }
     cout << "Started from the bottom and yeah" << endl;
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_id:
-            case t_read:
-            case t_write:
-            case t_do:
-            case t_if:
-            case t_check:
-            case t_eof:
-                cout << "predict program --> stmt_list eof\n";
-                stmt_list ();
-                match (t_eof); // takes care of $$
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-        recover_from_error(P_follow);
-        cout << "Unable to Match a rule for a valid Program" << endl;
+
+    switch (input_token) {
+        case t_id:
+        case t_read:
+        case t_write:
+        case t_do:
+        case t_if:
+        case t_check:
+        case t_eof:
+            cout << "predict program --> stmt_list eof\n";
+            stmt_list ();
+            
+            try{
+            match (t_eof); // takes care of $$
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_eof}, false, P_follow))
+                        return;
+                }
+            break;
+        default: return;
     }
+
     syntax_tree += ")";
     regex pattern("\\(\\)");
     syntax_tree = regex_replace(syntax_tree, pattern, "");
@@ -218,48 +221,131 @@ void stmt () {
         return;
     }
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_id:
-                cout << "predict stmt --> id gets expr\n";
+    switch (input_token) {
+        case t_id:
+            cout << "predict stmt --> id gets expr\n";
+            
+            try{
                 match (t_id);
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_id}, false, S_follow))
+                    return;
+                else
+                    match (t_id);
+            }
+
+            try{
                 match (t_gets);
-                expr ();
-                break;
-            case t_read:
-                cout << "predict stmt --> read id\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_gets}, false, S_follow))
+                    return;
+                else
+                    match (t_gets);
+            }
+
+            expr ();
+            break;
+        case t_read:
+            cout << "predict stmt --> read id\n";
+            
+            try{
                 match (t_read);
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_read}, false, S_follow))
+                    return;
+                else
+                    match (t_read);
+            }
+
+            try{
                 match (t_id);
-                break;
-            case t_write:
-                cout << "predict stmt --> write R_Expr\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_id}, false, S_follow))
+                    return;
+                else
+                    match (t_id);
+            }
+
+            break;
+        case t_write:
+            cout << "predict stmt --> write R_Expr\n";
+            
+            try{
                 match (t_write);
-                R_Expr ();
-                break;
-            case t_if:
-                cout << "predict stmt --> if R_Expr stmt_list fi\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_write}, false, S_follow))
+                    return;
+                else
+                    match (t_write);
+            }
+
+            R_Expr ();
+            break;
+        case t_if:
+            cout << "predict stmt --> if R_Expr stmt_list fi\n";
+            
+            try{
                 match (t_if);
-                R_Expr ();
-                stmt_list ();
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_if}, false, S_follow))
+                    return;
+                else
+                    match (t_if);
+            }
+
+            R_Expr ();
+            stmt_list ();
+            
+            try{
                 match (t_fi);
-                break;
-            case t_do:
-                cout << "predict stmt --> do stmt_list od\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_fi}, false, S_follow))
+                    return;
+                else
+                    match (t_fi);
+            }
+
+            break;
+        case t_do:
+            cout << "predict stmt --> do stmt_list od\n";
+            
+            try{
                 match (t_do);
-                stmt_list ();
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_do}, false, S_follow))
+                    return;
+                else
+                    match (t_do);
+            }
+
+            stmt_list ();
+            
+            try{
                 match (t_od);
-                break;
-            case t_check:
-                cout << "predict stmt --> check R_Expr\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_od}, false, S_follow))
+                    return;
+                else
+                    match (t_od);
+            }
+
+            break;
+        case t_check:
+            cout << "predict stmt --> check R_Expr\n";
+            
+            try{
                 match (t_check);
-                R_Expr ();
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-            recover_from_error(S_follow);
-            cout << "Unable to Match a rule for a valid Statement" << endl;
-        }
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_check}, false, S_follow))
+                    return;
+                else
+                    match (t_check);
+            }
+
+            R_Expr ();
+            break;
+        default: return;
+    }
     syntax_tree += ")";
 }
 
@@ -301,32 +387,65 @@ void factor () {
         return;
     }
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_lparen:
-                cout << "predict factor --> lparen R_Expr rparen\n";
+
+    switch (input_token) {
+        case t_lparen:
+            cout << "predict factor --> lparen R_Expr rparen\n";
+            
+            try{
                 match (t_lparen);
-                R_Expr ();
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_lparen}, false, F_follow))
+                    return;
+                else
+                    match (t_lparen);
+            }
+            
+            R_Expr ();
+            
+            try{
                 match (t_rparen);
-                break;
-            case t_id:
-                cout << "predict factor --> id\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_rparen}, false, F_follow))
+                    return;
+                else
+                    match (t_rparen);
+            }
+            
+            break;
+        case t_id:
+            cout << "predict factor --> id\n";
+            
+            try{
                 match (t_id);
-                break;
-            case t_literal:
-                cout << "predict factor --> literal\n";
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_id}, false, F_follow))
+                    return;
+                else
+                    match (t_id);
+            }
+
+            break;
+        case t_literal:
+            cout << "predict factor --> literal\n";
+            
+            try{
                 match (t_literal);
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-            recover_from_error(F_follow);
-            cout << "Unable to Match a rule for a valid Factor" << endl;
-        }
+            } catch(exception* e) {
+                if (check_error(vector<token> {t_literal}, false, F_follow))
+                    return;
+                else
+                    match (t_literal);
+            }
+
+            break;
+        default: return;
+    }
     syntax_tree += ")";
 }
 
 void expr_tail () {
+    cout << "ET\n";
     if (check_error (ET, epsET, ET_follow)){
         return;
     }
@@ -350,6 +469,7 @@ void expr_tail () {
 }
 
 void term_tail () {
+    cout << "TT\n";
     if (check_error (TT, epsTT, TT_follow)){
         return;
     }
@@ -369,6 +489,7 @@ void term_tail () {
 }
 
 void factor_tail () {
+    cout << "FT\n";
     if (check_error (FT, epsFT, FT_follow)){
         return;
     }
@@ -392,38 +513,89 @@ void r_op () {
         return;
     }
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_eq_eq:
-                cout << "predict r_op --> equalequal\n";
+
+    switch (input_token) {
+        case t_eq_eq:
+            cout << "predict r_op --> equalequal\n";
+            
+            try{
                 match (t_eq_eq);
-                break;
-            case t_not_eq:
-                cout << "predict r_op --> notequal\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_eq_eq}, false, ro_follow))
+                        return;
+                    else
+                    match (t_eq_eq);
+                }
+
+            break;
+        case t_not_eq:
+            cout << "predict r_op --> notequal\n";
+            
+            try{
                 match (t_not_eq);
-                break;
-            case t_less:
-                cout << "predict r_op --> lessthan\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_not_eq}, false, ro_follow))
+                        return;
+                    else
+                    match (t_not_eq);
+                }
+
+            break;
+        case t_less:
+            cout << "predict r_op --> lessthan\n";
+            
+            try{
                 match (t_less);
-                break;
-            case t_great:
-                cout << "predict r_op --> greaterthan\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_less}, false, ro_follow))
+                        return;
+                    else
+                    match (t_less);
+                }
+
+            break;
+        case t_great:
+            cout << "predict r_op --> greaterthan\n";
+            
+            try{
                 match (t_great);
-                break;
-            case t_less_eq:
-                cout << "predict r_op --> lessORequal\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_great}, false, ro_follow))
+                        return;
+                    else
+                    match (t_great);
+                }
+
+            break;
+        case t_less_eq:
+            cout << "predict r_op --> lessORequal\n";
+            
+            try{
                 match (t_less_eq);
-                break;
-            case t_great_eq:
-                cout << "predict r_op --> greaterORequal\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_less_eq}, false, ro_follow))
+                        return;
+                    else
+                    match (t_less_eq);
+                }
+
+            break;
+        case t_great_eq:
+            cout << "predict r_op --> greaterORequal\n";
+            
+            try{
                 match (t_great_eq);
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-            recover_from_error(ro_follow);
-            cout << "Unable to Match a rule for a valid Relation Operation" << endl;
-        }
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_great_eq}, false, ro_follow))
+                        return;
+                    else
+                    match (t_great_eq);
+                }
+
+            break;
+        default: return;
+    }
+    
     syntax_tree += ")";
 }
 
@@ -432,22 +604,32 @@ void add_op () {
         return;
     }
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_add:
-                cout << "predict add_op --> add\n";
+    switch (input_token) {
+        case t_add:
+            cout << "predict add_op --> add\n";
+            
+            try{
                 match (t_add);
-                break;
-            case t_sub:
-                cout << "predict add_op --> sub\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_add}, false, ao_follow))
+                        return;
+                }
+
+            break;
+        case t_sub:
+            cout << "predict add_op --> sub\n";
+            
+            try{
                 match (t_sub);
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-            recover_from_error(ao_follow);
-            cout << "Unable to Match a rule for a valid Add Operation" << endl;
-        }
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_sub}, false, ao_follow))
+                        return;
+                }
+
+            break;
+        default: return;
+    }
+
     syntax_tree += ")";
 }
 
@@ -456,22 +638,32 @@ void mul_op () {
         return;
     }
     syntax_tree += "(";
-    try{
-        switch (input_token) {
-            case t_mul:
-                cout << "predict mul_op --> mul\n";
+    switch (input_token) {
+        case t_mul:
+            cout << "predict mul_op --> mul\n";
+            
+            try{
                 match (t_mul);
-                break;
-            case t_div:
-                cout << "predict mul_op --> div\n";
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_mul}, false, mo_follow))
+                        return;
+                }
+
+            break;
+        case t_div:
+            cout << "predict mul_op --> div\n";
+            
+            try{
                 match (t_div);
-                break;
-            default: return;
-        }
-    }catch(exception* ex){
-            recover_from_error(mo_follow);
-            cout << "Unable to Match a rule for a valid Mul Operation" << endl;
-        }
+            } catch(exception* e) {
+                    if (check_error(vector<token> {t_div}, false, mo_follow))
+                        return;
+                }
+
+            break;
+        default: return;
+    }
+    
     syntax_tree += ")";
 }
 
