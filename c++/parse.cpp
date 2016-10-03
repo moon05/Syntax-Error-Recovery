@@ -475,10 +475,11 @@ int main () {
     input_token = scan ();
     program ();
     cout << "Printing Syntax Tree" << endl;
+    cout << syntax_tree << endl;
     
-    regex pattern("()");
+    regex pattern("\\(\\)");
 
     syntax_tree = regex_replace(syntax_tree, pattern, "");
-
+    cout << "Cleaned up tree" << endl;
     cout << syntax_tree << endl;
 }
