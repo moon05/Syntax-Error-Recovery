@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstring>
 #include "scan.h"
 
 using namespace std;
