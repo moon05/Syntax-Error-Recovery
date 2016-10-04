@@ -1,9 +1,9 @@
 import math
 import sys
 
-global input_token;
-global image;
-global syntax_tree;
+global input_token
+global image
+global syntax_tree
 
 image = ''
 syntax_tree = ''
@@ -490,9 +490,5 @@ def main():
 
 if __name__ =="__main__":
 	main()
-
-
-
-
 
 
