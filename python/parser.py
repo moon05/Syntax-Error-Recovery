@@ -5,7 +5,8 @@ global input_token;
 global image;
 global syntax_tree;
 
-image = '';
+image = ''
+syntax_tree = ''
 
 names = ["read", "write", "if", "do", "fi", "od",
 			"od", "check", "id", "literal","gets",
